@@ -160,3 +160,31 @@ scale.grid <- function(rule="tolower",ub,lb,n.points,breaks=NULL,n.in.breaks=NUL
 	}
 }
 
+
+# linear map from x \subset [down,up] to [0,int]
+# -----------------------------------------
+
+to.zero.int <- function(x,up,down,int=1,plotit=FALSE) { 
+	# maps x \subset [down,up] into [0,int]
+	stopifnot(x >= down & x <= up)
+	rval <- (x - down)/(up - down)*int
+	if (plotit) plot(x=x,y=rval,main=paste("linear mapping from [",paste(range(x),collapse=","),"] into [0,",int,"]",sep=""))
+	return(rval)
+}
+
+
+# nonlinear maps from range(z) to [low,high]
+# ------------------------------------------
+
+income <- function(z,low,high,type,plotit=FALSE){
+    if (type==1) rval <- ((low + (z-z[1] )/(1 + (z-z[1])/high)))
+    if (type==2) rval <- ((low + (z-z[1])^0.6 )/(high + (z-z[1])^0.6))
+    if (type==3) rval <- (high*(low + exp(z))/(high + exp(z)))
+    if (type==4) rval <- ((low + exp(z))/(1 + (exp(z)/high)))
+	if (plotit) {
+		plot(x=z,y=rval,main=paste("nonlinear map type: ",type))
+		abline(h=np$high.y)
+		abline(h=np$low.y)
+	}
+	return(rval)
+}
