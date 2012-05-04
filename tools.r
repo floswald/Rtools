@@ -161,14 +161,15 @@ scale.grid <- function(rule="tolower",ub,lb,n.points,breaks=NULL,n.in.breaks=NUL
 }
 
 
-# linear map from x \subset [down,up] to [0,int]
+# linear map from x \subset [down,up] to [new.down,new.up]
 # -----------------------------------------
 
-to.zero.int <- function(x,up,down,int=1,plotit=FALSE) { 
-	# maps x \subset [down,up] into [0,int]
+linear.map <- function(x,down,up,new.down,new.up,plotit=FALSE) { 
+	# maps x \subset [down,up] into [new.down,new.up]. new.down > 0!
 	stopifnot(x >= down & x <= up)
-	rval <- (x - down)/(up - down)*int
-	if (plotit) plot(x=x,y=rval,main=paste("linear mapping from [",paste(range(x),collapse=","),"] into [0,",int,"]",sep=""))
+	stopifnot(new.down>=0 & new.down<new.up)
+	rval <- (x - down + new.down)/(up - down)*new.up
+	if (plotit) plot(x=x,y=rval,main=paste("linear mapping from [",paste(range(x),collapse=","),"] into [",paste(c(new.down,new.up),collapse=","),"]",sep=""))
 	return(rval)
 }
 
@@ -176,7 +177,7 @@ to.zero.int <- function(x,up,down,int=1,plotit=FALSE) {
 # nonlinear maps from range(z) to [low,high]
 # ------------------------------------------
 
-income <- function(z,low,high,type,plotit=FALSE){
+nonlinear.map <- function(z,low,high,type,plotit=FALSE){
     if (type==1) rval <- ((low + (z-z[1] )/(1 + (z-z[1])/high)))
     if (type==2) rval <- ((low + (z-z[1])^0.6 )/(high + (z-z[1])^0.6))
     if (type==3) rval <- (high*(low + exp(z))/(high + exp(z)))
