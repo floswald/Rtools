@@ -17,6 +17,8 @@ scale.grid <- function(rule="tolower",ub,lb,n.points,breaks=NULL,n.in.breaks=NUL
 	rules <- c("tolower","ttolower","sinh","toupper","tobreak","ttobreak","tobreak-lin","sinhmid","sinhmid2")
 	if (!(rule %in% rules)) stop(paste("your rule",rule,"does not match any of",paste(rules,collapse=","),sep=" "))
 	n   <- n.points
+	stopifnot(ub > lb)
+	if (!is.null(breaks)) stopifnot(lb < head(breaks,1) & ub > tail(breaks,1))
 	if (is.null(breaks)){
 		# type 1 grid scaling: transform entire grid with same rule
 		if (rule=="tolower"){
@@ -161,15 +163,14 @@ scale.grid <- function(rule="tolower",ub,lb,n.points,breaks=NULL,n.in.breaks=NUL
 }
 
 
-# linear map from x \subset [down,up] to [new.down,new.up]
+# linear map from x \subset [down,up] to [0,new.up]
 # -----------------------------------------
 
-linear.map <- function(x,down,up,new.down,new.up,plotit=FALSE) { 
-	# maps x \subset [down,up] into [new.down,new.up]. new.down > 0!
+linear.map <- function(x,down,up,new.up,plotit=FALSE) { 
+	# maps x \subset [down,up] into [0,new.up]. 
 	stopifnot(x >= down & x <= up)
-	stopifnot(new.down>=0 & new.down<new.up)
-	rval <- (x - down + new.down)/(up - down)*new.up
-	if (plotit) plot(x=x,y=rval,main=paste("linear mapping from [",paste(range(x),collapse=","),"] into [",paste(c(new.down,new.up),collapse=","),"]",sep=""))
+	rval <- (x - down)/(up - down)*new.up
+	if (plotit) plot(x=x,y=rval,main=paste("linear mapping from [",paste(range(x),collapse=","),"] into [0",new.up,"]",sep=""))
 	return(rval)
 }
 
@@ -189,3 +190,161 @@ nonlinear.map <- function(z,low,high,type,plotit=FALSE){
 	}
 	return(rval)
 }
+
+
+
+# get normal copula
+# ------------------------------------------
+
+getNormCop <- function(rho,n,Qn= seq(1/n,1-1/n,l=n),cond=FALSE) {
+
+ require(copula)
+ cop = normalCopula(param=rho)
+
+ #create the grid
+ vals = expand.grid(p=Qn,p2=Qn)
+
+ # apply the copula
+ vals$v = dcopula(cop,as.matrix(vals))
+ G = array(vals$v,dim=c(n,n))
+
+ # making it conditional
+ if (cond) {
+   G = t(apply(G,1,function(v) { return(v/sum(v)) }))
+ }
+ return(G)
+}
+
+
+
+
+repmat = function(X,m,n){
+##R equivalent of repmat (matlab)
+mx = dim(X)[1]
+nx = dim(X)[2]
+matrix(t(matrix(X,mx,nx*n)),mx*m,nx*n,byrow=T)
+}
+
+
+# spread the array A[1,2,3] to 
+# what dim specifies in the order given
+# spread(A , c(2) , 10) will insert a dimension
+# in the second index of size 10
+spread <- function(A, loc, dims) {
+
+  if (!(is.array(A))) {
+    A = array(A,dim=c(length(A)))
+  }
+
+  adims = dim(A)
+  
+  # check dimensions
+  l = length(loc)
+  if (max(loc)> length(dim(A))+l) { 
+    stop('incorrect dimensions in spread')
+  }
+
+  # total dimension not in order
+  sdim = c(dim(A),dims)
+
+  # permutation of dims
+  edim = c()
+  oi =1        # original dims
+  ni =length(dim(A))+1 # new dims
+  for (i in c(1: (length(dim(A))+l))) {
+    if (i %in% loc) {
+      edim = c(edim,ni)
+      ni = ni+1
+    } else {
+      edim = c(edim,oi)
+      oi = oi +1
+    }
+  }
+
+  return( aperm( array(A,dim=sdim),edim)) 
+}
+
+
+# kron.prod 
+# =========
+
+# avoiding the curse of dimensionality when 
+# multiplying large kronecker products with a vector
+
+# R-implementation of multi_module.f90 by Lars Nesheim
+# original code in shared-lib/people/lars/fortran/tools
+# based on de Boor (1979) 
+
+kron.prod <- function(y,matrices){
+	# INPUT
+	# matrices: list(matrix1, matrix2,..., matrixd)
+	# 			where dim(matrixj) = c(nj,nj) [SQUARE!]
+	# y: value vector 
+	# 	 with length(y) = n1*...*nd
+	#
+	# OUTPUT
+	# y1: kron(matrixd,kron(...,(kron(matrix2,matrix1))...))*y
+	#
+	# check user input
+	stopifnot(is.list(matrices))
+	# stop if not all of them are square
+	allsquare <- lapply(matrices,function(x){dim(x)[1]==dim(x)[2]})
+	stopifnot(all(unlist(allsquare)))
+	# get sizes
+	nmatrices <- length(matrices)
+	nall <- length(y)
+	nullvec   <- rep(0,nall)
+	# compute product for first matrix
+	y0    <- y
+	stemp <- matrices[[1]]
+	n     <- dim(stemp)[1]
+	m     <- nall/n
+	y1    <- nullvec
+	for (i in 1:m){
+		y1[m*(0:(n-1)) + i]  <- stemp %*% y0[(n*(i-1)) + (1:n)]
+	}
+	if (nmatrices > 1){
+		# for all other matrices
+		for(imat in 2:nmatrices){
+			y0    <- y1
+			stemp <- matrices[[imat]]
+			n     <- dim(stemp)[1]
+			m     <- nall/n
+			y1    <- nullvec
+			for (i in 1:m){
+				y1[m*(0:(n-1)) + i]  <- stemp %*% y0[(n*(i-1)) + (1:n)]
+			}
+		}
+	}
+	return(y1)
+}
+
+
+# test that in tests/
+# =========
+
+
+
+
+##########################
+# knot selector
+##########################
+
+knot.select <- function(degree,grid){
+# returns a knotvector for a grid of data sites and a spline degree
+    n <- length(grid)
+    # if (n<(degree+1)*2+1) stop("need at least 2*(degree+1) +1 grid points")
+    p <- n+degree+1     # number of nodes required for solving Ax=b exactly
+    knots <- rep(0,p)
+    knots <- replace(knots,1:(degree+1),rep(grid[1],degree+1))
+    knots <- replace(knots,(p-degree):p,rep(tail(grid,1),degree+1))
+# this put RcppSimpleGetvalplicity of first and last knot in order
+# if there are anough gridpoints, compute intermediate ones
+    if (n<(degree+1)) stop("to few grid points for clamped curve")
+    if (n>(degree+1)){
+        for (j in 2:(n-degree)) knots[j+degree] <- mean(grid[j:(j+degree-1)])
+    }
+    return(knots)
+}
+
+
