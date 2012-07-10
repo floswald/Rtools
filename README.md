@@ -9,19 +9,12 @@ tools.r content
 ---------------
 
 1. grid creator: function to place points in an interval according to various rules.
-
 2. linear mapping: function to map an arbitrary interval into [0,up] 
-
 3. nonlinear mapping: function to map an arbitrary interval into [0,up] with some nonlinear rules
-
-4. construct a Normal copula
-
-5. repmat
-
-6. spread
-
+4. construct a Normal copula [tlamadon](https://github.com/tlamadon/Utils)
+5. repmat [tlamadon](https://github.com/tlamadon/Utils)
+6. spread [tlamadon](https://github.com/tlamadon/Utils)
 7. kron.prod: an R-implementation of a very efficient fortran routine to compute kronecker products
-
 8. knot.selector: a function that selects spline knots after a certain rule.
 
 
