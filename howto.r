@@ -1,6 +1,9 @@
 # R howto cheatsheet
 # ==================
 
+# Author florian.oswald@gmail.com
+# let me know if you find any errors.
+
 # R base plot
 # ===========
 
