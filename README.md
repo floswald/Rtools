@@ -1,8 +1,10 @@
-Rtools
-======
+Rtools. repository TOC
+======================
 
-some tools for R in tools.r
-some random examples in howto.r (mostly things from my own work, but also some nice ones from R-bloggers.)
+* some tools for R in tools.r
+* some random examples in howto.r (mostly things from my own work, but also some nice ones from R-bloggers.)
+* RcppEigen example for sparse equation solver
+* Rcpp RcppEigen Inline test file
 
 
 tools.r content
