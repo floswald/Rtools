@@ -93,7 +93,6 @@ result <- kroncpp(aa0,aa1,yy)
 
 all.equal(as.numeric(truth),result)
 
-source("~/Dropbox/R-packages/funapp/grids-ph-own/kron.prod.r")
 library(rbenchmark)
 
 benchmark(cpp=kroncpp(aa0,aa1,yy),R=kron.prod(y=yy,matrices=list(aa0,aa1)))
