@@ -33,3 +33,14 @@ examples for
 + manipulate time series objects
 
 
+eigen-sparse-lm content
+-----------------------
+
+worked example from RcppEigen vignette. compares performance of `lm()` with sparse matrix solver. 
+
+
+kron-inline content
+-------------------
+
+inline test file for various kronecker product routines. uses Eigen sparse/dense.
+
