@@ -360,9 +360,8 @@ Eigen::VectorXd KronProdMat(
 	} else if (nmats == 5 ) {
 		return KronProdMat5( a );
 	} else if (nmats > 5 ) {
-        throw std::runtime_error( "KronProdMat: too many dimensions specified." );
+        throw std::runtime_error( "KronProdMat: too many (> 5) dimensions specified." );
 	}
 }
-
 
 

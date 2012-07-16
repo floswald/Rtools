@@ -46,3 +46,8 @@ kron-inline content
 
 inline test file for various kronecker product routines. uses Eigen sparse/dense.
 
+kronSP-inline content
+---------------------
+
+kronecker products for up to 5 dims on sparse matrice (spline basis functions).
+
