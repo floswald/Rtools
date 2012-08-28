@@ -21,6 +21,61 @@ library(inline)
 source("~/Dropbox/git/Rtools/tools.r")	# uses: kron.prod()
 library(rbenchmark)
 
+# tests for including kron.prod.r() into the package as a cpp implementation
+# ---------------
+
+# question: can one do this in c?
+# y1[m*(0:(n-1)) + i]  <- stemp %*% y0[(n*(i-1)) + (1:n)]
+
+cppcode <- '
+Rcpp::NumericVector y(yr);
+Rcpp::NumericVector y2(y2r);
+Rcpp::IntegerVector x(xr);
+
+//for (int i=0; i<x.size();i++){
+//	y[ x[ i ] ] = y2[ i ];
+//}
+
+
+for (auto i : x) {
+	y[i] = y2[i];
+}
+
+return Rcpp::wrap(y);
+'
+
+cppfun <- cxxfunction(signature(yr="numeric",y2r="numeric",xr="integer"),body=cppcode, plugin="Rcpp")
+
+yr = 1:4
+xr = c(0L,3L) 
+y2r = rnorm(2)
+
+cppfun(yr,y2r,xr)
+
+# conclusion: could do it by adding a function that does this index by index insertion in
+#     for (i in 1:m){
+#         y1[m*(0:(n-1)) + i]  <- stemp %*% y0[(n*(i-1)) + (1:n)]
+#     }
+
+# update from SO: http://stackoverflow.com/questions/12161768/matlab-style-indexing-of-a-c-array/
+
+cppcode  <- '
+arma::vec y = Rcpp::as<arma::vec>(yr);
+arma::vec y2 = Rcpp::as<arma::vec>(y2r);
+arma::uvec x = Rcpp::as<arma::uvec>(xr);
+
+
+y.elem(x) = y2;
+return Rcpp::wrap(y);
+'
+
+cppfun <- cxxfunction(signature(yr="numeric",y2r="numeric",xr="integer"),body=cppcode, plugin="RcppArmadillo")
+
+# conclusion: this works!!!!!
+
+
+
+
 incl.code <- '
 #include <Eigen/Dense>
 
