@@ -275,6 +275,8 @@ spread <- function(A, loc, dims) {
 # original code in shared-lib/people/lars/fortran/tools
 # based on de Boor (1979) 
 
+# in matrices: fastest index first
+
 kron.prod <- function(y,matrices){
 	# INPUT
 	# matrices: list(matrix1, matrix2,..., matrixd)

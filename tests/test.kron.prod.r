@@ -1,5 +1,7 @@
 
+rm(list=ls(all=T))
 
+source("~/Dropbox/git/Rtools/tools.r")
 # test that for kron.prod
 # =========
 
@@ -9,10 +11,14 @@ n3 <- 3
 m1 <- matrix(rnorm(n1^2),nrow=n1,ncol=n1)
 m2 <- matrix(rnorm(n2^2),nrow=n2,ncol=n2)
 m3 <- matrix(rnorm(n3^2),nrow=n3,ncol=n3)
-y <- runif(n=n1*n2*n3)
+xvals <- expand.grid(m1[,1],m2[,1],m3[,1])
+func <- function( x ) {
+    return( x[1] + x[2] + x[3] + x[1]*x[2] * x[3] )
+}
+y <- apply(xvals,1,func)
 
 # build tensor product matrix
-make.kron  <- system.time(kron      <- kronecker(m3,kronecker(m2,m1)))
+kron      <- kronecker(m3,kronecker(m2,m1))
 
 # notice: in kron the indexing corresponds to
 
@@ -20,15 +26,12 @@ expand.grid( fastest=1:nrow(m1), middle=1:nrow(m2), slowest=1:nrow(m3) )
 
 
 # do multiplication
-calc.kron  <- system.time(R.kron <- kron %*% y)
-# total time
-total.kron <- make.kron + calc.kron
-print(total.kron)
-# size of tensor product matrix
-print(object.size(kron),units="auto")
+R.kron <- kron %*% y
 
 # run and time kron.prod
-print(system.time(my.kron <- kron.prod(y,list(m1,m2,m3))))
+my.kron <- kron.prod(y,list(m1,m2,m3))
+
+all.equal(as.numeric(R.kron),my.kron)
 
 # notice again INDEXING!: in kron.prod need to feed the matrices in reverse order as in kron!
 
