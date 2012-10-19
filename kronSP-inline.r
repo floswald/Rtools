@@ -257,6 +257,10 @@ all.equal(as.numeric(r.result),c.result)
 # benchmark 4 dimensions
 # -----------------------------------------------------------------
 
+# mapping kron.prod to kroncpp: 
+# kron.prod: fastest index first
+# kroncpp: fastest index last
+
 a = matrix(c(1,2,3,4,5,0,0,6,0,0,0,7,8,0,9,0),nrow=4,ncol=4,byrow=T)
 b <- matrix(c(1,2,0,0,0,3,0,0,2),nrow=3,ncol=3,byrow=T)
 c <- matrix(c(0,1,0,3),nrow=2,ncol=2,byrow=T)
