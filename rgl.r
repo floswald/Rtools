@@ -4,6 +4,7 @@
 if(!require(rgl)) install.packages('rgl')
 require(rgl)
 
+print("welcome to this R demo. This program will produce a couple of windows, which you can arrange on your screen. Once a window is active (you click inside), you can grag the displayed object with the mouse and rotate it around.")
 
 # setup data
 nx <- 50	# points into x direction
@@ -42,7 +43,6 @@ title3d("concave cobb douglas with planes")
 contour(x=x,y=y,z=cd.heights1,levels=level,main="contours of concave cobb-douglas")
 
 # quasi-concave cobb douglas
-print("quasi-concave cobb douglas")
 open3d()
 surface3d(x,y,cd.heights2,color="red")
 axes3d(labels=FALSE,tick=FALSE)
@@ -50,7 +50,6 @@ points3d(x=c(1,1),y=c(0,0.8),z=c(cobb.douglas(x=c(1,0),a=2,b=2),cobb.douglas(x=c
 segments3d(x=c(1,1),y=c(0,0.8),z=c(cobb.douglas(x=c(1,0),a=2,b=2),cobb.douglas(x=c(1,0.8),a=2,b=2)),lwd=2)
 title3d("quasi-concave cobb douglas")
 
-print("quasi-concave cobb douglas with planes")
 open3d()
 surface3d(x,y,cd.heights2,color="red")
 axes3d(labels=FALSE,tick=FALSE)
