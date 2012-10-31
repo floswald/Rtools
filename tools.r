@@ -349,4 +349,22 @@ knot.select <- function(degree,grid){
     return(knots)
 }
 
-
+# rouwenhorst discretization for AR1
+# ----------------------------------
+# http://www.karenkopecky.net/rouwenhorst.m
+# mu and sigma: mean and standard deviation of error term
+# rho: 1st order autocorrelation
+# n: number of approximation points
+rouwenhorst <- function(rho,sigma,mu,n){
+	qu <- (rho+1)/2
+	nu <- ((n-1)/(1-rho^2))^(1/2) * sigma
+	P  <- matrix(c(qu,1-qu,1-qu,qu),nrow=2,ncol=2)
+	for (i in 2:(n-1)){
+		zeros <- rep(0,i)
+		zzeros <- rep(0,i+1)
+		P <- qu * rbind(cbind(P,zeros,deparse.level=0),zzeros,deparse.level=0) + (1-qu) * rbind(cbind(zeros,P,deparse.level=0),zzeros,deparse.level=0) + (1-qu) * rbind(zzeros,cbind(P,zeros,deparse.level=0),deparse.level=0) + qu * rbind(zzeros,cbind(zeros,P,deparse.level=0),deparse.level=0)
+		P[2:i, ] <- P[2:i, ]/2
+	}
+	zgrid <- seq(from=mu/(1-rho)-nu,to=mu/(1-rho)+nu,length=n)
+	return(list(Pmat=P,zgrid=zgrid))
+}
