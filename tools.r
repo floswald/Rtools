@@ -368,3 +368,20 @@ rouwenhorst <- function(rho,sigma,mu,n){
 	zgrid <- seq(from=mu/(1-rho)-nu,to=mu/(1-rho)+nu,length=n)
 	return(list(Pmat=P,zgrid=zgrid))
 }
+
+
+
+
+#### add significance stars to a coef(summary.lm(model)) object 
+
+add.stars <- function(model){
+	if (!is.matrix(model)) stop( "model needs to be from coef(summary(model)), i.e. a named matrix")
+	if ( !"Pr(>|t|)" %in% colnames(model)) stop( "you need to supply the column named 'Pr(>|t|)'")
+	df <- as.data.frame(model)
+	old <- names(df)
+	names(df) <- c("est","std","tval","pval")
+	df$sig <- cut(abs(df$pval),breaks=c(0,0.01,0.05,0.1,Inf),right=FALSE,labels=c("***","**","*",""))
+	names(df) <- c(old,"")
+	return(df)
+}
+	
