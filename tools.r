@@ -356,14 +356,17 @@ knot.select <- function(degree,grid){
 # rho: 1st order autocorrelation
 # n: number of approximation points
 rouwenhorst <- function(rho,sigma,mu,n){
+	stopifnot(n>1)
 	qu <- (rho+1)/2
 	nu <- ((n-1)/(1-rho^2))^(1/2) * sigma
 	P  <- matrix(c(qu,1-qu,1-qu,qu),nrow=2,ncol=2)
-	for (i in 2:(n-1)){
-		zeros <- rep(0,i)
-		zzeros <- rep(0,i+1)
-		P <- qu * rbind(cbind(P,zeros,deparse.level=0),zzeros,deparse.level=0) + (1-qu) * rbind(cbind(zeros,P,deparse.level=0),zzeros,deparse.level=0) + (1-qu) * rbind(zzeros,cbind(P,zeros,deparse.level=0),deparse.level=0) + qu * rbind(zzeros,cbind(zeros,P,deparse.level=0),deparse.level=0)
-		P[2:i, ] <- P[2:i, ]/2
+	if (n>2){
+		for (i in 2:(n-1)){
+			zeros <- rep(0,i)
+			zzeros <- rep(0,i+1)
+			P <- qu * rbind(cbind(P,zeros,deparse.level=0),zzeros,deparse.level=0) + (1-qu) * rbind(cbind(zeros,P,deparse.level=0),zzeros,deparse.level=0) + (1-qu) * rbind(zzeros,cbind(P,zeros,deparse.level=0),deparse.level=0) + qu * rbind(zzeros,cbind(zeros,P,deparse.level=0),deparse.level=0)
+			P[2:i, ] <- P[2:i, ]/2
+		}
 	}
 	zgrid <- seq(from=mu/(1-rho)-nu,to=mu/(1-rho)+nu,length=n)
 	return(list(Pmat=P,zgrid=zgrid))
@@ -385,3 +388,26 @@ add.stars <- function(model){
 	return(df)
 }
 	
+
+
+# obtain stationary distribution of transition matrix by iteration
+stationary.dist <- function(G,g,n){
+	for (i in 1:n){
+		g <- G %*% g
+	}
+	return(g)
+}
+
+# simulate n paths of length ntime each from a markov transition matrix trans and initial distribution init.
+sim.markov.paths <- function(n,ntime,trans,init=NULL){
+	if (is.null(init))	init <- stationary.dist(G=trans,g=rep(1/dim(trans)[1],times=dim(trans)[1]),n=1000)	
+	out       <- matrix(NA,nrow=n,ncol=ntime)
+	out[,1]   <- sample(1:length(init),size=n,replace=T,prob=init)
+	for (i in (1:n)){
+		for (it in (2:ntime)){
+			out[i,it] <- sample(1:length(init),size=1,replace=T,prob=trans[out[i,it-1], ])
+		}
+	}
+	return(out)
+}
+
