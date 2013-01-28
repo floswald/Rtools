@@ -205,7 +205,7 @@ getNormCop <- function(rho,n,Qn= seq(1/n,1-1/n,l=n),cond=FALSE) {
  vals = expand.grid(p=Qn,p2=Qn)
 
  # apply the copula
- vals$v = dcopula(cop,as.matrix(vals))
+ vals$v = dCopula(cop,as.matrix(vals))
  G = array(vals$v,dim=c(n,n))
 
  # making it conditional
