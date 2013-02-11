@@ -6,6 +6,8 @@ Rtools. repository TOC
 * RcppEigen example for sparse equation solver
 * Rcpp RcppEigen Inline test file
 
+Feel free to use all the files. No guarantee at all. All of this was written for my own use, but it's here if anyone finds it useful.
+
 
 tools.r content
 ---------------
