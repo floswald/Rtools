@@ -126,6 +126,10 @@ print(p3, vp=vplayout(2:5,1:4)) # print the main graph to region row(2:5), cols(
 print(p2, vp=vplayout(2:5,5))   # print p3 to region row(2:5), col(5)
 
 
+### arrange ggplot legend
+theme(legend.position="top")	# put on top of graph, not on right side.
+
+
 
 # read data
 # =========
@@ -190,6 +194,8 @@ longbeg <- sub("^\\s+", '',longw)	# remove white space at beg of string
 # get rid of colon in 'quarter' field
 mystr <- "Has:colon"
 mystr <- sub('\\:',' ',mystr)
+# remove period from beginning of word
+gsub("\\.([[:alpha:]])","\\1",".WordWithAPeriod")
 
 # useful tricks
 # -------------
